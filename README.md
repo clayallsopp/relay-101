@@ -475,3 +475,5 @@ Refresh your browser and you should be able to switch between stories with ease.
 ## Relay 102
 
 So, that's a whirlwind introduction to Relay. We haven't even touched on mutations (which is how you write data back to the server) or how to handle a loading spinner while data fetches. Relay may not be right for every app or team, but it's a very interesting take on a common problem that might help some lightbulbs go off.
+
+The final source of this app is available [on Github](https://github.com/clayallsopp/relay-101). Follow me [@clayallsopp](http://twitter.com/clayallsopp) and/or [@GraphQLHub](http://twitter.com/GraphQLHub) for updates on more of this stuff.
