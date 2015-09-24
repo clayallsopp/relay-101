@@ -6,7 +6,7 @@ This was originally posted [on Medium](http://medium.com). If you're cloning the
 
 [React](https://facebook.github.io/react/) lets you build user interface components with JavaScript; [Relay](https://facebook.github.io/relay/) lets you easily connect your React components to data from a remote server. Relay accomplishes this by being opinionated - it assumes certain things about your server and your app, which increases the barrier to entry but may be worth it for many projects.
 
-Without Relay, you have to manually download, transform, and cache each slice of your server's data in your React app. Tools like Flux and Redux help prevent some bugs that occur in this process, but still leave considerable room for human error in apps with lots of data flowing to and from the server. Relay removes most of the common boilerplate and enables app engineers to concisely and safely retrieve the data they want.
+Without Relay, you have to download, transform, and cache each slice of your server’s data by hand. Tools like Flux and Redux help prevent some bugs that occur in this process, but still leave considerable room for human error in apps with lots of data flowing to and from the server. Relay removes most of the common boilerplate and enables app engineers to concisely and safely retrieve the data they want.
 
 Once upon a time, Rails showed how to make a blog in 15 minutes. In that tradition, we're going to make a Hacker News client with Relay. This assumes you are familiar with Node, NPM, and React, but nothing more.
 
@@ -129,7 +129,7 @@ To start creating the component, we need to install the React and React-DOM pack
 $ npm install react@0.14.0-rc1 react-dom@0.14.0-rc1 --save
 ```
 
-Note that we have very specific version requirements. Back in index.js, remote our old alert and start by defining an Item component:
+Note that we have very specific version requirements. Back in index.js, remove our old alert and start by defining an Item component:
 
 ```
 // inside index.js
@@ -152,7 +152,7 @@ class Item extends React.Component {
 };
 ```
 
-Note that all of our props come from this "store" object - we'll see why in a moment, but go with it for now.
+Note that all of our data come from this "store" prop - we'll see why in a moment, but go with it for now.
 
 Let's get something on the screen - render a dummy Item like so:
 
@@ -184,7 +184,7 @@ Time to add some Relay. Instead of using a static item, we're going to fetch the
 $ npm install react-relay@0.3.2 babel-relay-plugin@0.2.5 sync-request@2.0.1 graphql@0.4.4 --save
 ```
 
-Why did we install more than just react-relay? Well, tThe current implementation of Relay is going to require us to do a bit more setup - specifically, we need to connect this "babel-relay-plugin" into Babel. The plugin will talk to the GraphQLHub endpoint and generate some more configuration for Relay.
+Why did we install more than just react-relay? Well, the current implementation of Relay is going to require us to do a bit more setup - specifically, we need to connect this "babel-relay-plugin" into Babel. The plugin will talk to the GraphQLHub endpoint and generate some more configuration for Relay.
 
 To connect the plugin, open up webpack.config.js and edit the "query" option:
 
@@ -264,11 +264,11 @@ Item = Relay.createContainer(Item, {
 
 Boom, that happened. In plain-english, this is what's happening:
 
-> Hey Relay, I'm going to re-define my Item component as a new component which wraps the original. For the component's `store` prop, I need the data described in this GraphQL fragment. I know I need it on a "HackerNewsAPI" because I explored the API via http://GraphQLHub.com/playground/hn.
+> Hey Relay, I'm going to re-define my Item component as a new component which wraps the original in a container. For the component's `store` prop, I need the data described in this GraphQL fragment. I know I need it on a "HackerNewsAPI" because I explored the API via http://GraphQLHub.com/playground/hn.
 
 Note that we only describe a GraphQL fragment (fragments are analogous to aliases/symlinks in a query), not the final query for how to pull the data. This is one of Relay's strengths - a component declares exactly what data it needs, not how to retrieve it.
 
-But at some point we do need a finalized GraphQL query, which is where Relay Routes come into play. Relay.Route has nothing to do with browser history or URLs - instead, it has to do with creating a "root query," in which all of the various fragments by the initial set of components exist.
+But at some point we do need a finalized GraphQL query, which is where Relay Routes come into play. Relay.Route has nothing to do with browser history or URLs - instead, it has to do with creating a "root query," which bootstraps our data requests.
 
 So, let's make a Relay Route. Add this below our new Item definition:
 
@@ -289,7 +289,7 @@ class HackerNewsRoute extends Relay.Route {
 }
 ```
 
-Note that our GraphQL now begins with the root query. Relay allows injection of fragments and variables, which is how components share (but do not duplicate) their data requirements to their parent components.
+Note that our GraphQL now begins with the root query. Relay allows injection of fragments via ES6 string interpolation, which is how components share (but do not duplicate) their data requirements to their parent components.
 
 Time to get something on the screen! Change our old rendering code to this:
 
@@ -348,7 +348,7 @@ TopItems = Relay.createContainer(TopItems, {
 
 Now instead of requesting one item, we request the "topStories". For each story, GraphQL will request the data from the Item's fragment, so we'll get only the data we need.
 
-But hang on - currently our Item fragment requests a specific item (#8836). We need to update our query to only be a fragment on individual HackerNewsItem objects:
+But hang on - currently our Item fragment requests a specific item (#[8863](https://news.ycombinator.com/item?id=8863)). We need to update our query to only be a fragment on individual HackerNewsItem objects:
 
 ```
 Item = Relay.createContainer(Item, {
@@ -393,9 +393,9 @@ Voila! Check your app in the browser:
 
 ## Variables in Queries
 
-So now we have the basic knowledge to start building Relay apps, but I want to show off one more Relay feature: variables.
+So now we have the basic knowledge to start building Relay apps, but I want to show off another Relay feature: variables.
 
-In most apps, queries aren't static and we often need to request different data at runtime. One way Relay allows to accomplish this is to embed variables in our GraphQL queries. For our little app, we're going to change which types of stories we fetch (the top, or the newest, etc).
+In most apps, queries aren't static and we often need to request different data at runtime. One way Relay allows us to accomplish this is injecting variables in our GraphQL queries. For our little app, we're going to add a switch to change which types of stories we fetch (the top, or the newest, etc).
 
 To start, we need to change our TopItems query:
 
@@ -448,7 +448,7 @@ class TopItems extends React.Component {
 
 Some new stuff going on here! We're now accessing the "relay" prop, which has some special properties. Any component created with Relay has this prop injected - if we wanted to just unit test our TopItems component, we could inject a mock object ourselves.
 
-Aside from the Relay variables, everything else so far is vanilla React - we create a new select element, give it an initial value, and get ready to respond when it changes. When that change happens, we need to tell Relay to use a new variable value. This looks like:
+Aside from the Relay variables, everything else is vanilla React - we create a new select element, give it an initial value, and get ready to respond when it changes. When that change happens, we need to tell Relay to use a new variable value. This looks like:
 
 ```
 class TopItems extends React.Component {
@@ -474,6 +474,8 @@ Refresh your browser and you should be able to switch between stories with ease.
 
 ## Relay 102
 
-So, that's a whirlwind introduction to Relay. We haven't even touched on mutations (which is how you write data back to the server) or how to handle a loading spinner while data fetches. Relay may not be right for every app or team, but it's a very interesting take on a common problem that might help some lightbulbs go off.
+So, that's a whirlwind introduction to Relay. We haven't even touched on mutations (which is how you write data back to the server) or how to handle a loading spinner while data fetches. Relay is very flexible, but comes at the price of some configuration and more reading on our part.
+
+Relay may not be right for every app or team, but it's a very injecting take on a common problem that might help some lightbulbs go off.
 
 The final source of this app is available [on Github](https://github.com/clayallsopp/relay-101). Follow me [@clayallsopp](http://twitter.com/clayallsopp) and/or [@GraphQLHub](http://twitter.com/GraphQLHub) for updates on more of this stuff.
