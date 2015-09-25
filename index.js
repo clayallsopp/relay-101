@@ -7,7 +7,7 @@ class Item extends React.Component {
     let item = this.props.store;
 
     return (
-      <div key={item.id}>
+      <div>
         <h1><a href={item.url}>{item.title}</a></h1>
         <h2>{item.score} - {item.by.id}</h2>
         <hr />
@@ -34,7 +34,7 @@ Item = Relay.createContainer(Item, {
 class TopItems extends React.Component {
   render() {
     let items = this.props.store.stories.map(
-      store => <Item store={store} />
+      (store, idx) => <Item key={idx} store={store} />
     );
     let variables = this.props.relay.variables;
     let currentStoryType = (this.state && this.state.storyType) || variables.storyType;
