@@ -1,6 +1,6 @@
 # README
 
-This was originally posted [on Medium](http://medium.com). If you're cloning the repo, run `npm install` and then `npm start`.
+This was originally posted [on Medium](https://medium.com/@clayallsopp/relay-101-building-a-hacker-news-client-bb8b2bdc76e6). If you're cloning the repo, run `npm install` and then `npm start`.
 
 # Relay 101: Building A Hacker News Client
 
