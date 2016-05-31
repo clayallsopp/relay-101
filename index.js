@@ -84,7 +84,7 @@ class HackerNewsRoute extends Relay.Route {
 }
 
 Relay.injectNetworkLayer(
-  new Relay.DefaultNetworkLayer('http://www.graphqlHub.com/graphql')
+  new Relay.DefaultNetworkLayer('https://www.graphqlHub.com/graphql')
 );
 
 let mountNode = document.getElementById('container');
